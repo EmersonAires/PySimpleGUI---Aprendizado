@@ -5,7 +5,8 @@ import io                       # fornece os principais recursos do Python para 
                                 # vários tipos  de E / S.
 
 # Obtem a pasta contendo as imagens do usuário
-folder = sg.popup_get_folder('Pasta de imagens para abrir', default_path='')
+path_padrao = 'C://Users//emerson eduardo//Pictures//Recortes'
+folder = sg.popup_get_folder('Pasta de imagens para abrir', default_path=path_padrao)
 
 if not folder: # Se não for selecionado nenhuma pasta --> cancelar
     sg.popup_cancel('Cancelando')
@@ -48,3 +49,26 @@ def get_img_data(f, maxsize=(1200, 850), first=False):
 
         return bio.getvalue()       # retorna a imagem armazenada no buffer
     return ImageTk.PhotoImage(img)
+# --------------------------------------------------------------------------------------------
+
+
+# Faça esses 2 elementos fora do layout, pois queremos "atualizá-los" mais tarde
+# Inicializar com o primeiro arquivo da lista
+filename = os.path.join(folder, fnames[0])               # nome do primeiro elemento da lista
+image_elem = sg.Image(data=get_img_data(filename, first=True)) # atribui a primeira imagem à variável
+filename_display_elem = sg.Text(filename, size=(80, 3)) # atribui o nome da primeira imagem à variável
+file_num_display_elem = sg.Text('File 1 of {}'.format(num_files), size=(15,1)) # atribui o texto contendo a quantidade de arquivos à variável
+
+# Define layout, exibe e lê o formulário
+col = [[filename_display_elem],  # Coluna com duas linhas: 1ª Nome da foto, 
+       [image_elem]]             # 2ª imagem
+
+col_files = [[sg.Listbox(values=fnames, change_submits=True, size=(60, 30), key='listbox')], 
+             [sg.Button('Next', size=(8, 2)), sg.Button('Prev', size=(8, 2)),
+             file_num_display_elem]]
+
+layout = [[sg.Column(col_files), sg.Column(col)]]   # Layout --> duas colunas
+
+window = sg.Window('Image Browser', layout, return_keyboard_events=True, location=(0, 0), size=(1200, 700), use_default_focus=False)
+
+event, values = window.read()
